@@ -7,6 +7,7 @@ RUN go install -tags netgo -ldflags '-extldflags "-static"'
 
 
 FROM gcr.io/distroless/static-debian11
+LABEL maintainer="aoki"
 
 WORKDIR /app
 COPY --from=build /go/bin/dist-design-pattern /app/dist-design-pattern
