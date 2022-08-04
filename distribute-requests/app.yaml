@@ -1,0 +1,45 @@
+# experiment service
+kind: Service
+apiVersion: v1
+metadata:
+  name: experiment
+  labels:
+    app: experiment
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      name: web
+  selector:
+    app: experiment
+---
+# web service
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  labels:
+    app: web
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      name: web
+  selector:
+    app: web
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: experiment-example
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx
+  volumes:
+    - name: config-volume
+      configMap:
+        name: experiment-config

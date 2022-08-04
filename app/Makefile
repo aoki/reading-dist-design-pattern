@@ -2,7 +2,7 @@ image:
 	docker build -t go-server:latest .
 
 run:
-	docker run -it --rm -p 8080:8080 go-server
+	docker run -it --rm -p 9090:8080 go-server
 
 sidecar:
 	docker run -d --rm -p 8181:8080 --name go-server go-server
