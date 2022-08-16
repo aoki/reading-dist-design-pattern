@@ -23,6 +23,7 @@ RUN apt-get update \
   && gem install async -v 1.30.3 \
   && gem install async-http -v 0.56.6 \
   && gem install fluentd -v 1.15.1 \
+  && gem install fluent-plugin-redis-slowlog \
   && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
   && wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/v$TINI_VERSION/tini-$dpkgArch" \
   && wget -O /usr/local/bin/tini.asc "https://github.com/krallin/tini/releases/download/v$TINI_VERSION/tini-$dpkgArch.asc" \
@@ -50,6 +51,7 @@ RUN groupadd -r fluent && useradd -r -g fluent fluent \
   && chown -R fluent /fluentd && chgrp -R fluent /fluentd
 
 
+COPY plugins/* /fluentd/plugins/
 COPY fluent.conf /fluentd/etc/
 COPY entrypoint.sh /bin/
 
