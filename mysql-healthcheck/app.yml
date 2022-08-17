@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: adapter-example-health
+  namespace: default
+  labels:
+    app: mysql
+spec:
+  containers:
+    - image: mysql
+      name: mysql
+      env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+      ports:
+        - name: mysql-port
+          containerPort: 3306
+    - image: mysql-healthcheck
+      name: mysql-healthcheck
+      imagePullPolicy: Never
+      args:
+        [
+          "-query=SHOW DATABASES",
+          "-user=root",
+          "-password=root",
+          "-database=information_schema",
+        ]
+      ports:
+        - name: go-port
+          containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      name: "mysql-port"
+      targetPort: 3306
+    - port: 8080
+      name: "go-port"
+      targetPort: 8080
+  selector:
+    app: mysql
