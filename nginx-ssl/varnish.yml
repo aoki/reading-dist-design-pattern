@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: varnish-cache
+spec:
+  selector:
+    matchLabels:
+      app: varnish-cache
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: varnish-cache
+    spec:
+      containers:
+        - name: cache
+          resources:
+            requests:
+              # Varnish キャッシュサーバーごとに使用
+              memory: 128Mi
+          # image: brendanburns/varnish
+          image: varnish
+          command:
+            - "varnishd"
+            - "-F"
+            - "-f"
+            - "/etc/varnish-config/default.vcl"
+            - "-a"
+            - "0.0.0.0:8080"
+            - "-s"
+            # 上記で指定したメモリと合わせる
+            - "malloc,128M"
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: varnish
+              mountPath: "/etc/varnish-config"
+      volumes:
+        - name: varnish
+          configMap:
+            name: varnish-config
+---
+apiVersion: v1
+kind: Service
+apiVersion: v1
+metadata:
+  name:  varnish-service
+spec:
+  selector:
+    app:  varnish-cache
+  type:  LoadBalancer
+  ports:
+  - protocol: TCP
+    port:  80
+    targetPort:  8080
