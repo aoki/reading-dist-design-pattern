@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sharded-twemproxy
+spec:
+  selector:
+    matchLabels:
+      app: sharded-twemproxy
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: sharded-twemproxy
+    spec:
+      containers:
+        - name: twemproxy
+          image: ganomede/twemproxy
+          command:
+            - "nutcracker"
+            - "-c"
+            - "/etc/config/nutcracker.yml"
+            - "-v"
+            - "7"
+            - "-s"
+            - "6222"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: sharded-twem-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shard-router-service
+spec:
+  selector:
+    app: sharded-twemproxy
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 11211
+      targetPort: 11211
