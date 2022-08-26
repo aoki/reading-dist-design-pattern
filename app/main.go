@@ -21,25 +21,31 @@ func main() {
 
 		byteArry, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Fprintf(w, "Error %s", err)
+			fmt.Fprintf(w, "Error %s\n", err)
 			return
 		}
 
-		fmt.Fprintf(w, "Response: %s", string(byteArry))
+		fmt.Fprintf(w, "Response: %s\n", string(byteArry))
 	})
 
 	http.HandleFunc("/info", func(w http.ResponseWriter, r *http.Request) {
 		hostname, err := os.Hostname()
 		if err != nil {
-			fmt.Fprintf(w, "Error %s", err)
+			fmt.Fprintf(w, "Error %s\n", err)
 			return
 		}
 
-		fmt.Fprintf(w, "Hello, %s", hostname)
+		fmt.Fprintf(w, "Hello, %s\n", hostname)
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+		hostname, err := os.Hostname()
+		if err != nil {
+			fmt.Fprintf(w, "Error %s\n", err)
+			return
+		}
+
+		fmt.Fprintf(w, "Hello, %q, %s\n", html.EscapeString(r.URL.Path), hostname)
 	})
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
